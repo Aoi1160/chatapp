@@ -4,10 +4,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-public class MesseageController {
+public class MessageController {
   @GetMapping("/")
-  public String getMethodName() {
+  public String showMessages(){
       return "messages/index";
   }
-  
 }
