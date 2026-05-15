@@ -24,6 +24,7 @@ import in.tech_camp.chat_app.repository.UserRepository;
 import in.tech_camp.chat_app.validation.ValidationOrder;
 import lombok.AllArgsConstructor;
 
+
 @Controller
 @AllArgsConstructor
 public class RoomController {
@@ -33,6 +34,19 @@ public class RoomController {
 
   private final RoomUserRepository roomUserRepository;
 
+  @GetMapping("/")
+  public String index(@AuthenticationPrincipal CustomUserDetail currentUser, Model model){
+    UserEntity user = userRepository.findById(currentUser.getId());
+    model.addAttribute("user", user);
+    List<RoomUserEntity> roomUserEntities = roomUserRepository.findByUserId(currentUser.getId());
+    List<RoomEntity> roomList = roomUserEntities.stream()
+        .map(RoomUserEntity::getRoom)
+        .collect(Collectors.toList());
+    model.addAttribute("rooms", roomList);
+      return "rooms/index";
+  }
+  
+
   @GetMapping("/rooms/new")
   public String showRoomNew(@AuthenticationPrincipal CustomUserDetail currentUser, Model model){
     List<UserEntity> users = userRepository.findAllExcept(currentUser.getId());
@@ -41,7 +55,7 @@ public class RoomController {
     return "rooms/new";
   }
 
-   @PostMapping("/rooms")
+  @PostMapping("/rooms")
   public String createRoom(@ModelAttribute("RoomForm") @Validated(ValidationOrder.class) RoomForm roomForm, BindingResult bindingResult, @AuthenticationPrincipal CustomUserDetail currentUser,Model model){
     if(bindingResult.hasErrors()){
       List<String> errorMessages = bindingResult.getAllErrors().stream()
